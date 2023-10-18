@@ -1,124 +1,90 @@
-const jwt = require('jsonwebtoken');
-require('dotenv').config();
-const user = require('../model/userModel');
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const User = require("../model/userModel");
 let errMsg;
 
 module.exports = {
-    generateToken:(id,role)=>{
-        const token = jwt.sign({id,role},process.env.JWT_SECRET);
-        return token
-    },
-    verifyTokenUser: async(req,res,next)=>{
-        try{
-            let token = req.header['authorization'];
-            if(!token){
-                return res.status(403).json({errMsg:"Access Denied"})
-            }
+  generateToken: (id, role) => {
+    const token = jwt.sign({ id, role }, process.env.JWT_SECRET);
 
-            if(token.startsWith('Bearer')){
-                token = token.slice(7,token.length).trimLeft();
-            }
+    return token;
+  },
+  verifyTokenUser: async (req, res, next) => {
+    try {
+      console.log(req.header, "headerrr");
+      let token = req.headers.authorization;
+     console.log(token)
+      if (!token) {
+        return res.status(403).json({ errMsg: "Access Denied" });
+      }
 
-            const verified  = jwt.verify(token,process.env.JWT_SECRET);
-            req.payload = verified;
-            const user = await user.findById(req.payload.id);
-            if(user.isBanned === true) return res.status(403).json({errMsg:"Access Denied"});
+      if (token.startsWith("Bearer")) {
+        token = token.slice(7, token.length).trimLeft();
+      }
 
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
 
-            if(req.payload.role === "user"){
-                next()
-            }else{
-                return res.status(403).json({errMsg:"Access Denied"});
-            }
-        }catch(err){
-            res.status(500).json({errMsg:"Server Down"})
-        }
-        
-    },
+      req.payload = verified;
+      const user = await User.findById(req.payload.id);
+      if (user.isBanned === true)
+        return res.status(403).json({ errMsg: "Access Denied" });
 
-    verifyTokenArtist: async(req,res,next)=>{
-        try {
-            let token = req.headers['authorization'];
+      if (req.payload.role === "user") {
+        next();
+      } else {
+        return res.status(403).json({ errMsg: "Access Denied" });
+      }
+    } catch (err) {
+        console.log("err at auth;",err)
+      res.status(500).json({ errMsg: "Server Down" });
+    }
+  },
 
-                if(!token){
-                    return res.status(403).json({errMsg:"Access Denied"})
-                }
-            if(token.startsWith('Bearer')){
-                token = token.slice(7,token.length).trimLeft();
-            }
+  verifyTokenArtist: async (req, res, next) => {
+    try {
+      let token = req.headers.authorization;
 
-            const verified = jwt.verify(token,process.env.JWT_SECRET);
+      if (!token) {
+        return res.status(403).json({ errMsg: "Acces denied" });
+      }
+      if (token.startsWith("Bearer")) {
+        token = token.slice(7, token.length).trimLeft();
+      }
 
-            req.payload = verified;
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
 
-            if(req.payload.role === 'artist'){
+      if (verified.role === "artist") {
+        req.payload = verified;
+        next();
+      } else {
+        return res.status(403).json({ errMsg: "Access denied" });
+      }
+    } catch (error) {
+      res.status(500).json({ errMsg: "Server Error" });
+    }
+  },
 
-                next()
-            }else{
-                return res.status(403).json({errMsg:"Access Denied"})
-            }
+  verifyTokenAdmin: async (req, res, next) => {
+    try {
+      let token = req.headers["authorization"];
 
+      if (!token) {
+        return res.status(403).json({ errMsg: "Access denied" });
+      }
+      if (token.startsWith("Bearer")) {
+        token = token.slice(7, token.length).trimLeft();
+      }
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
+      req.payload = verified;
 
-        } catch (err){
-            console.log(err);
-            res.status(500).json({errMsg:"Server Down"})
-        }
-
-    },
-
-    verifyTokenAdmin: async(req,res,next)=>{
-        try{
-            let token = req.headers['authorization'];
-
-            if(!token){
-                return res.status(403).json({errMsg:"Access denied"})
-            }
-            if(token.startsWith('Bearer')){
-                token = token.slice(7,token.length).trimLeft();
-            }
-            const verified = jwt.verify(token,process.env.JWT_SECRET);
-            req.payload = verified;
-
-            if(req.payload.role === 'admin'){
-                next()
-            }else{
-                return res.status(403).json({errMsg:"Access Denied"})
-            }
-        } catch(err) {
-            console.log(err);
-            res.status(500).json({errMsg:"Server Down"})
-        }
-    },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-}
+      if (req.payload.role === "admin") {
+        next();
+      } else {
+        return res.status(403).json({ errMsg: "Access Denied" });
+      }
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ errMsg: "Server Down" });
+    }
+  },
+};
