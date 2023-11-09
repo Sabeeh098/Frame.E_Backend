@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     required: true,
   },
 
-  photo: String,
+  photo : String,
 
   email: {
     type: String,
@@ -16,14 +16,18 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: false, 
+  },
   phone: {
     type: Number,
   },
   address: {
-    type: String,
+    type: [String],
   },
   isActive: {
-    default: false,
+    default: true,
     type: Boolean,
   },
 });

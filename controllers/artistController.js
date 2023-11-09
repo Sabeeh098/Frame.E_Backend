@@ -8,6 +8,7 @@ let errMsg;
 const artistRegister = async (req, res) => {
   try {
     const { email, name, password } = req.body;
+    console.log("first", req.body);
     const exist = await artistModel.find({ email });
     if (exist.length !== 0) {
       return res.status(400).json({ errMsg: "You are already exist" });
@@ -67,9 +68,62 @@ const getArtistDetails = async (req, res) => {
   }
 };
 
+const getArtistCategoryPosts = async (req, res) => {
+  try {
+    const { id } = req.payload;
+    const { category } = req.query;
+
+    const artist = await artistModel.findById(id).populate({
+      path: "posts",
+      match: { category },
+    });
+
+    if (!artist) {
+      return res.status(404).json({ errMsg: "No Artist Found" });
+    }
+
+    const categoryPosts = artist.posts;
+
+    return res.status(200).json({ categoryPosts });
+  } catch (error) {
+    console.log("Error getting category posts of the artist", error);
+    res.status(500).json({ errMsg: "Server error" });
+  }
+};
+
+const deleteArtistPost = async (req, res) => {
+  try {
+    const { id } = req.payload;
+    const { postId } = req.params;
+
+
+    const post = await ArtistPost.findOne({ _id: postId, artist: id });
+
+    if (!post) {
+      return res.status(404).json({ errMsg: "Post not found" });
+    }
+
+
+    const deleteResult = await ArtistPost.deleteOne({ _id: postId, artist: id });
+
+    if (deleteResult.deletedCount === 1) {
+   
+      return res.status(200).json({ message: "Post deleted successfully" });
+    } else {
+  
+      return res.status(404).json({ errMsg: "Post not found" });
+    }
+  } catch (error) {
+    console.log('Error deleting artist post', error);
+    res.status(500).json({ errMsg: 'Server Error' });
+  }
+};
+
+
+
 const createArtistPost = async (req, res) => {
   try {
-    const { postName, description, price, photo } = req.body;
+    const { postName, description, price, photo, category } = req.body;
     const { id } = req.payload;
     const artist = await artistModel.findById(id);
 
@@ -82,6 +136,7 @@ const createArtistPost = async (req, res) => {
       description,
       price,
       photo,
+      category,
       artist: id,
     });
 
@@ -122,6 +177,8 @@ module.exports = {
   artistRegister,
   artistLogin,
   getArtistDetails,
+  getArtistCategoryPosts,
   createArtistPost,
+  deleteArtistPost,
   editArtistProfile,
 };

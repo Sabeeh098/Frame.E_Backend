@@ -2,7 +2,9 @@ const { generateToken } = require("../middlewares/auth");
 const adminModel = require("../model/adminModel");
 const Product = require("../model/adminProduct");
 const userModel = require("../model/userModel");
-const bcrypt = require("bcrypt");
+const artistModel = require("../model/artistModel");
+const postModel = require("../model/artistPost");
+// const bcrypt = require("bcrypt");
 let errMsg;
 
 const adminLogin = async (req, res) => {
@@ -45,6 +47,59 @@ const users = async (req, res) => {
     res.status(500).json({ errMsg: "Something went Wrong" });
   }
 };
+
+const artists = async (req, res) => {
+  const { page, pageSize } = req.query;
+  const pageNumber = parseInt(page) || 1;
+  const limit = parseInt(pageSize) || 10;
+  
+  if (pageNumber <= 0 || limit <= 0) {
+    return res.status(400).json({ errMsg: "Invalid page or pageSize" });
+  }
+
+  try {
+    const skip = (pageNumber - 1) * limit;
+    const artistData = await artistModel
+      .find()
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json({ artistData });
+  } catch (error) {
+    console.error("Error fetching artists:", error);
+    return res.status(500).json({ errMsg: "Something went wrong" });
+  }
+};
+
+const blockArtist = async (req,res) => {
+  try {
+    const {artistId} = req.body;
+    const artist = await artistModel.findById(artistId);
+    if(!artist) {
+      return res.status(400).json({errMsg:"Artist not found"})
+    }
+    artist.isBlocked = true;
+    await artist.save();
+    return res.status(200).json({msg:"Artist blocked successfully"});
+  } catch (error) {
+    console.error("Error blocking artist: ", error);
+  }
+}
+
+const unblockArtist = async (req,res) => {
+  try {
+    const {artistId} = req.body;
+    const artist = await artistModel.findById(artistId);
+    if(!artist){
+      return res.status(400).json({errMsg:"Artist not found"})
+    }
+    artist.isBlocked = false;
+    await artist.save();
+    return res.status(200).json({msg:"Artist unblocked successfully"});
+  } catch (error) {
+    console.error("Error unblocking artist: ", error);
+  }
+}
 const blockUser = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -52,7 +107,7 @@ const blockUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ errMsg: "User Not found" });
     }
-    user.isActive = true;
+    user.isActive = false;
     user.save();
     return res.status(200).json({ message: "Blocked Succeffully" });
   } catch (error) {
@@ -67,7 +122,7 @@ const unblockUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ errMsg: "User not found" });
     }
-    user.isActive = false;
+    user.isActive = true;
     user.save();
     return res.status(200).json({ message: "unblocked" });
   } catch (error) {}
@@ -153,14 +208,44 @@ const deleteProduct = async (req, res) => {
     return res.status(500).json({ errMsg: "Internal Server Error" });
   }
 };
+const getStatistics = async(req,res) => {
+  try{
+    const totalUsers = await userModel.countDocuments();
+    const totalArtists = await artistModel.countDocuments();
+
+    res.status(200).json({
+      usersCount:totalUsers,
+      artistsCount:totalArtists
+    })
+  }
+  catch(error){
+    console.log('Error getting statistics', error);
+    res.status(500).send({errMsg:'Server Error'})
+  }
+}
+
+const postComments = async(req,res) => {
+  try {
+    const postsWithComments = await postModel.find().populate("comments");
+    res.status(200).json({postsWithComments})
+  } catch (error) {
+    console.log('Error populating comments', error);
+    res.status(500).send({errMsg:"Server Error"});
+  }
+}
 
 module.exports = {
   adminLogin,
   users,
+  artists,
   blockUser,
   unblockUser,
   addProduct,
   getProducts,
   editProducts,
   deleteProduct,
+  blockArtist,
+  unblockArtist,
+  getStatistics,
+  postComments,
 };

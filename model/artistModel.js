@@ -31,7 +31,11 @@ const artistSchema = new mongoose.Schema({
   }],
   followerCount: {
     type: Number,
-    default: 0, // Initialize to 0
+    default: 0, 
+  },
+  isBlocked: {
+    type: Boolean,
+    default: false, 
   },
 });
 

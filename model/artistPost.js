@@ -17,6 +17,10 @@ const artistPostSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  category: {
+    type: String,
+    required: true,
+  },
   artist: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Artist",
