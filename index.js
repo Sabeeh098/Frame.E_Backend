@@ -43,9 +43,9 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("Socket.io connected:");
 
-  socket.on("join_room", (chat_id, userId) => {
+  socket.on("join_room", (chat_id) => {
     socket.join(chat_id);
-    console.log(userId, "connected room ");
+    console.log(chat_id, "connected room ");
   });
 
   socket.on(`send_message`, (newMessage,chatId) => {
