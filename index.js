@@ -35,11 +35,15 @@ const server = app.listen(PORT, () => {
 });
 
 const io = new Server(server, {
-  cors: {
-    origin:'*',
-    credentials: true
-  },
-});
+    cors: {
+      origin: '*', // Replace with the actual origin of your frontend application
+      credentials: true,
+    },
+    transports: ['websocket'],
+  });
+
+  
+  
 io.on("connection", (socket) => {
   console.log("Socket.io connected:");
 
