@@ -9,17 +9,21 @@ const adminOrderSchema = new mongoose.Schema({
     products: [
         {
           product: {
-            type: mongoose.Schema.Types.ObjectId, // Reference to the product ordered
-            ref: 'Product', // Replace 'Product' with the actual product model name
-            required: true,
-          },
-          quantity: {
-            type: Number,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Product', 
             required: true,
           },
         },
       ],
+      price: {
+        type:Number,
+        required : true,
+      },
 
+      quantity: {
+        type: Number,
+        required: true,
+      },
      totalAmount: {
         type: Number,
      },
@@ -30,7 +34,7 @@ const adminOrderSchema = new mongoose.Schema({
      status:{
         type: String,
         required: true,
-        enum: ['pending','processing','completed'],
+        default: "pending",
      } 
 })
 

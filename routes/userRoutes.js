@@ -28,8 +28,9 @@ userRoute.get("/store", verifyTokenUser, usercontroller.adminProduct);
 
 
 userRoute.post('/order', verifyTokenUser, usercontroller.createOrder);
-userRoute.get('/success', usercontroller.handleSuccess);
-userRoute.get('/failed', usercontroller.handleFailed);
+
+userRoute.get('/paymentSuccess', usercontroller.handleSuccess);
+userRoute.get('/paymentFailed', usercontroller.handleFailed);
 
 userRoute.post("/payment", verifyTokenUser, usercontroller.onlinePayment);
 userRoute.get("/paymentSuccess", usercontroller.paymentStatus);

@@ -152,6 +152,7 @@ const createChat = async (req, res) => {
 
 const fetchChats = async (req, res) => {
   try {
+    console.log("try from aartist")
     const { userId, artistId, senderRole } = req.query;
     let userid = userId;
     let artistid = artistId;
@@ -207,23 +208,36 @@ const fetchChats = async (req, res) => {
 
 const sendMessage = async (messages) => {
   try {
-   const {senderId,chatId,content,senderRole,time} = messages;
-   const newMessage = new messageModel({
-    content,
-    chatId,
-    senderId,
-    senderType:senderRole,
-    time,
-   });
+    console.log("sendMessage function called:", messages);
+    const { senderId, chatId, content, senderRole, time } = messages;
 
-   await newMessage.save();
-   const chat = await chatModel.findByIdAndUpdate(chatId,{latestMessages : newMessage._id});
-   return true;
+    // Check if the sender is a user or an artist
+    const senderType = senderRole === 'User' ? 'User' : 'Artist';
+
+    const newMessage = new messageModel({
+      content,
+      chatId,
+      senderId,
+      senderType, // Use the determined senderType
+      time,
+    });
+
+    await newMessage.save();
+
+    // Update the latest message in the chat
+    console.log("sendMessage function completed successfully");
+    const chat = await chatModel.findByIdAndUpdate(
+      chatId,
+      { latestMessages: newMessage._id },
+      { new: true } // Ensure that the updated chat document is returned
+    );
+
+    return true;
   } catch (error) {
     console.log(error);
+    return false; // Return false to indicate that there was an error
   }
-
-}
+};
 
 const fetchAllMessages = async (req,res)=>{
   try {

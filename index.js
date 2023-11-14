@@ -34,28 +34,52 @@ const server = app.listen(PORT, () => {
   console.log(`Server started at ${PORT}`);
 });
 
+// const io = new Server(server, {
+//   cors: {
+//     origin:process.env.FRONTENDURL,
+//     credentials: true
+//   },
+// });
+
+
+// io.on("connection", (socket) => {
+//   console.log("Socket.io connected:");
+
+// socket.on("join_room", (chat_id) => {
+//   socket.join(chat_id);
+//   console.log(chat_id, "connected room ");
+// });
+
+//   socket.on("send_message", (newMessage, chatId) => {
+//     console.log("message reached:", chatId);
+//     io.to(chatId).emit("message_response", newMessage);
+//     console.log(newMessage, "messages aaavo?");
+//     sendMessage(newMessage);
+//   });
+  
+// });
+
 const io = new Server(server, {
+  pingTimeout: 60000,
   cors: {
-    origin:'*',
-    credentials: true
+    origin: process.env.FRONTENDURL,
   },
 });
-
-
 io.on("connection", (socket) => {
-  console.log("Socket.io connected:");
+  console.log("Socket.io connected:",socket.id);
 
-  socket.on("join_room", (chat_id) => {
-    socket.join(chat_id);
-    console.log(chat_id, "connected room ");
-  });
+  socket.on("join_room",(chat_id)=>{
+    socket.join(chat_id.room);
+    console.log(chat_id,"connected room ");
+  })
 
-  socket.on(`send_message`, (newMessage,chatId) => {
-    // const { content, createdAt } = newMessage;
-    console.log("message reached:", chatId);
-
-    io.to(chatId).emit("message_response", newMessage);
-
-    sendMessage(newMessage);
-  });
+  socket.on(`send_message`,(newMessage)=>{
+    const {content , createdAt} = newMessage
+    console.log('message reached:',content);
+    
+    socket.to(newMessage.chatId).emit("message_response",newMessage);
+    
+    sendMessage(newMessage)
+  })
+  
 });

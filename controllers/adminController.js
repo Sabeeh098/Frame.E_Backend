@@ -4,6 +4,7 @@ const Product = require("../model/adminProduct");
 const userModel = require("../model/userModel");
 const artistModel = require("../model/artistModel");
 const postModel = require("../model/artistPost");
+const adminOrder = require("../model/adminOrders")
 // const bcrypt = require("bcrypt");
 let errMsg;
 
@@ -233,6 +234,25 @@ const postComments = async(req,res) => {
     res.status(500).send({errMsg:"Server Error"});
   }
 }
+const getAdminOrders = async (req, res) => {
+  try {
+    const adminOrders = await adminOrder.find()
+      .populate({
+        path: 'user',
+        model: 'User',
+        select: 'address', 
+      })
+      .populate({
+        path: 'products.product',
+        model: 'Products', // Replace 'Product' with your actual product model name
+      });
+
+    res.status(200).json({ adminOrders });
+  } catch (error) {
+    console.error('Error getting admin orders:', error);
+    res.status(500).json({ errMsg: 'Internal server error' });
+  }
+};
 
 module.exports = {
   adminLogin,
@@ -248,4 +268,5 @@ module.exports = {
   unblockArtist,
   getStatistics,
   postComments,
+  getAdminOrders,
 };

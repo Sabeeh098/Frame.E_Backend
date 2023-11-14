@@ -35,10 +35,12 @@ artistRoutes.delete(
   artistcontroller.deleteArtistPost
 );
 
-artistRoutes.post("/fetchChat",verifyTokenArtist,chatcontroller.createChat);
-artistRoutes.get("/fetchChats",verifyTokenArtist,chatcontroller.fetchChats)
-artistRoutes.post("/sendMessage",verifyTokenArtist,chatcontroller.sendMessage)
-artistRoutes.get("/openChat",verifyTokenArtist,chatcontroller.fetchAllMessages)
+
+
+artistRoutes.post("/fetchChat", verifyTokenArtist, chatcontroller.createChat);
+artistRoutes.get("/fetchChats", verifyTokenArtist, chatcontroller.fetchChats);
+artistRoutes.post("/sendMessage", verifyTokenArtist, chatcontroller.sendMessage);
+artistRoutes.get("/openChat", verifyTokenArtist, chatcontroller.fetchAllMessages);
 
 
 

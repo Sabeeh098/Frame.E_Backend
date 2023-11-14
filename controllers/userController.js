@@ -3,7 +3,7 @@ const artistModel = require("../model/artistModel");
 const postModel = require("../model/artistPost");
 const productModel = require("../model/adminProduct");
 const orderModel = require("../model/orders");
-const adminOrder = require("../model/adminOrders")
+const adminOrder = require("../model/adminOrders");
 const EMAIL_PASS = process.env.EMAIL_PASS;
 const CLIENTURL = process.env.CLIENTURL;
 const nodemailer = require("nodemailer");
@@ -14,171 +14,126 @@ const stripe = require("stripe")(process.env.STRIPEKEY);
 
 let errMsg;
 
-// const createOrder = async (req, res) => {
-//   try {
-//     console.log("admin order create")
-//     const { token } = req.payload;
-//     const { price, id, productId, address } = req.body;
-//     // console.log(price,"pricee");
-//     // console.log(id,"id");
-//     // console.log(productId,"productId");
-//     // console.log(address,"Address");
-
-//     const user = await stripe.customers.create({
-//       metadata: {
-//         price: price,
-//       },
-//     });
-//     const session = await stripe.checkout.sessions.create({
-//       line_items: [
-//         {
-//           price_data: {
-//             currency: "inr",
-//             product_data: {
-//               name: "framee",
-//             },
-//             unit_amount: price * 100,
-//           },
-//           quantity: 1,
-//         },
-//       ],
-//       mode: "payment",
-//       success_url: `${process.env.SERVERURL}success?price=${price}&productId=${productId}&userId=${id}&status=success&token=${token}&address=${address}`,
-//       // cancel_url: `${process.env.SERVERURL}failed?&status=failed&token=${token}`,
-//       cancel_url: `${process.env.SERVERURL}failed?&status=failed&token=${token}`,
-
-//     });
-//     console.log(session)
-//     res.send({ url: session.url });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// };
-// const adminOrderStatus = async (req, res) => {
-//   const id = req.query.userId;
-//   const status = req.query.status;
-//   const price = req.query.price;
-//   const productId = req.query.productId;
-//   const token = req.query.token;
-//   const address = req.query.address;
-//   console.log(id,status,price,productId,token,address)
-//   try{
-//     if(token) {
-//       if(status === "success"){
-//         const pricestring = price.toString();
-//         const newadminOrder = new adminOrder({
-//           user: id,
-//           products: [
-//             {
-//               product: productId,
-//               quantity: 1,
-//             },
-//           ],
-//           price:pricestring,
-//           address:address,
-//           status:"pending",
-//         });
-//         const saveOrder = await newadminOrder.save();
-//         console.log("New order saved:bfbcfb", saveOrder);
-//         res.redirect(`${process.env.CLIENTURL}paymentSuccess`);
-//       } else {
-//         res.redirect(`${process.env.CLIENTURL}paymentFailed`);
-//       }
-//       }
-//     } catch (error) {
-//       console.log(error);
-//       res.redirect(`${process.env.CLIENTURL}paymentFailed`);
-//     }
-//   }
-
-
 const createOrder = async (req, res) => {
   try {
-    const { token } = req.payload;
-    const { price, id, productId, address } = req.body;
-
-    // Create a customer in Stripe
+    const token  = req.payload.token;
+    console.log(token)
+    const { id, price, productId, address , quantity } = req.body;
+    console.log(req.body)
     const user = await stripe.customers.create({
       metadata: {
         price: price,
       },
     });
 
-    // Create a checkout session
     const session = await stripe.checkout.sessions.create({
       line_items: [
         {
           price_data: {
-            currency: 'inr',
+            currency: "inr",
             product_data: {
-              name: 'framee',
+              name: "framee",
             },
             unit_amount: price * 100,
           },
-          quantity: 1,
+          quantity: quantity,
         },
       ],
-      mode: 'payment',
-      success_url: `${process.env.SERVERURL}success?price=${price}&productId=${productId}&userId=${id}&status=success&token=${token}&address=${address}`,
-      cancel_url: `${process.env.SERVERURL}failed?status=failed&token=${token}`,
+      mode: "payment",
+      success_url: `${process.env.SERVERURL}paymentSuccess?price=${price}&productId=${productId}&userId=${id}&status=success&token=${token}&address=${address}&quantity=${quantity}`,
+      cancel_url: `${process.env.SERVERURL}paymentFailed?status=failed&token=${token}`,
     });
 
-    // Redirect to the Stripe checkout page
+    await decrementProductQuantity(productId, quantity);
+
     res.send({ url: session.url });
   } catch (error) {
-    console.error('Error creating order:', error);
+    console.error("Error creating order:", error);
     res.redirect(`${process.env.CLIENTURL}paymentFailed`);
   }
 };
 
-// Handle the success route and update order status
 const handleSuccess = async (req, res) => {
-  const { userId, status, price, productId, token, address } = req.query;
+   
+  const price = req.query.price;
+  const productId = req.query.productId;
+  const userId = req.query.userId;
+  const token = req.query.token;
+  const address = req.query.address;
+  const quantity = req.query.quantity;
+  const status = req.query.status
+console.log(price,productId,userId,token,address,quantity,status,"handlesuccesas")
 
   if (token) {
     try {
-      if (status === 'success') {
+      if (status === "success") {
         const pricestring = price.toString();
         const newAdminOrder = new adminOrder({
           user: userId,
           products: [
             {
               product: productId,
-              quantity: 1,
             },
           ],
+          quantity: quantity || 1,
           price: pricestring,
           address: address,
           status: 'pending',
         });
+
+        newAdminOrder.quantity = quantity || 1;
+       console.log(newAdminOrder)
         const saveOrder = await newAdminOrder.save();
         res.redirect(`${process.env.CLIENTURL}paymentSuccess`);
       } else {
         res.redirect(`${process.env.CLIENTURL}paymentFailed`);
       }
     } catch (error) {
-      console.error('Error updating order status:', error);
+      console.error("Error updating order status:", error);
       res.redirect(`${process.env.CLIENTURL}paymentFailed`);
     }
   } else {
-    // Handle cases where token is not provided
     res.redirect(`${process.env.CLIENTURL}paymentFailed`);
   }
 };
 
 const handleFailed = (req, res) => {
-  // Handle cases when payment has failed
   res.redirect(`${process.env.CLIENTURL}paymentFailed`);
 };
 
+const decrementProductQuantity = async (productId, quantity) => {
+  try {
+    const product = await productModel.findById(productId);
+
+    // Check if the product exists
+    if (!product) {
+      console.error("Product not found");
+      return;
+    }
+
+    // Check if the product has enough quantity to decrement
+    if (product.quantity < quantity) {
+      console.error("Insufficient product quantity");
+      return;
+    }
+
+    // Decrement the product quantity
+    product.quantity -= quantity;
+
+    // Save the updated product
+    await product.save();
+
+    console.log(`Product quantity decremented for productId: ${productId}`);
+  } catch (error) {
+    console.error("Error decrementing product quantity:", error);
+  }
+};
 
 const onlinePayment = async (req, res) => {
   try {
-   
     const { token } = req.payload;
     const { price, id, postId, address } = req.body;
-  
-   
+
     const user = await stripe.customers.create({
       metadata: {
         price: price,
@@ -217,18 +172,17 @@ const paymentStatus = async (req, res) => {
 
   try {
     if (token) {
-     
       if (status === "success") {
         const amountString = amount.toString();
 
         const newOrder = new orderModel({
-          user: id, 
-          items: [{ post: postId }], 
+          user: id,
+          items: [{ post: postId }],
           amount: amountString,
           ShippingAddress: address,
           status: "pending",
         });
-  
+
         const savedOrder = await newOrder.save();
 
         res.redirect(`${process.env.CLIENTURL}paymentSuccess`);
@@ -332,7 +286,6 @@ const login = async (req, res) => {
   }
 };
 
-
 const artistPosts = async (req, res) => {
   try {
     const artistpost = await postModel
@@ -348,7 +301,6 @@ const artistPosts = async (req, res) => {
 
 const getArtists = async (req, res) => {
   try {
-    
     const artist = await artistModel.find().populate("posts");
     res.status(200).json({ artist });
   } catch (error) {
@@ -403,7 +355,7 @@ const unlikePost = async (req, res) => {
         $pull: {
           likes: {
             userId: userId,
-            like: false, 
+            like: false,
           },
         },
         $inc: { totalLikes: -1 },
@@ -495,7 +447,6 @@ const addComment = async (req, res) => {
 
     const post = await postModel.findById(postId).populate("comments.user");
 
-   
     if (!post) {
       return res.status(404).json({ errMsg: "Post not found" });
     }
@@ -531,8 +482,6 @@ const userDetails = async (req, res) => {
 
 const editProfile = async (req, res) => {
   try {
-
-
     const { id } = req.payload;
     const { userName, email, phone, address, photo } = req.body;
 
@@ -558,8 +507,8 @@ const editProfile = async (req, res) => {
 
 const adminProduct = async (req, res) => {
   try {
- 
     const products = await productModel.find();
+
     res.status(200).json({ products });
   } catch (error) {
     console.error("Error getting admin products", error);
@@ -571,7 +520,6 @@ module.exports = {
   userRegister,
   verifyMail,
   login,
-
   artistPosts,
   getArtists,
   getSpecificArtist,
@@ -587,7 +535,6 @@ module.exports = {
   onlinePayment,
   paymentStatus,
   createOrder,
-handleFailed,
-handleSuccess,
-  // adminOrderStatus,
+  handleFailed,
+  handleSuccess,
 };

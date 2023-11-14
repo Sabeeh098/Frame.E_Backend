@@ -18,6 +18,7 @@ adminRoutes.put("/products/:productId", admincontroller.editProducts);
 adminRoutes.delete("/products/:productId", admincontroller.deleteProduct);
 adminRoutes.get("/statistics",admincontroller.getStatistics)
 adminRoutes.get("/postComments",admincontroller.postComments)
+adminRoutes.get("/orders",admincontroller.getAdminOrders)
 
 
 module.exports = adminRoutes;

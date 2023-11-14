@@ -12,6 +12,7 @@ module.exports = {
   verifyTokenUser: async (req, res, next) => {
     try {
       let token = req.headers.authorization;
+   
       if (!token) {
         return res.status(403).json({ errMsg: "Access Denied" });
       }
@@ -22,8 +23,8 @@ module.exports = {
 
       const verified = jwt.verify(token, process.env.JWT_SECRET);
 
-      req.payload = verified;
       
+      req.payload = {token,...verified};
       const user = await User.findById(req.payload.id);
       if (user.isBanned === true)
         return res.status(403).json({ errMsg: "Access Denied" });
