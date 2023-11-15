@@ -48,7 +48,7 @@ const artistLogin = async (req, res) => {
       role: "artist",
       id: artist?._id,
     });
-    console.log("user logined")
+    
   } catch (error) {
     console.log(error)
     res.status(500).json({ errMsg: "Something went wrong" });
