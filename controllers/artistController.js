@@ -26,6 +26,7 @@ const artistRegister = async (req, res) => {
 
 const artistLogin = async (req, res) => {
   try {
+    console.log("first")
     const { email, password } = req.body;
 
     const artist = await artistModel.findOne({ email });
@@ -38,7 +39,7 @@ const artistLogin = async (req, res) => {
     if (!passwordMatch) {
       return res.status(401).json({ errMsg: "Password doesn't match" });
     }
-    const token = generateToken(artist._id, "artist"); // Pass artist._id instead
+    const token = generateToken(artist._id, "artist"); 
 
     res.status(200).json({
       message: "Login Successful",
@@ -48,6 +49,7 @@ const artistLogin = async (req, res) => {
       id: artist?._id,
     });
   } catch (error) {
+    console.log(error)
     res.status(500).json({ errMsg: "Something went wrong" });
   }
 };

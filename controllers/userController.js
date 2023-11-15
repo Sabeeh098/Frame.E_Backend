@@ -262,6 +262,7 @@ const userRegister = async (req, res) => {
 
 const login = async (req, res) => {
   try {
+    
     const { email, password } = req.body;
     const existUser = await userModel.findOne({ email });
     if (!existUser) return res.status(401).send({ errMsg: "User Not Found" });
