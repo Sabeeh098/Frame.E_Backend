@@ -155,8 +155,8 @@ const onlinePayment = async (req, res) => {
         },
       ],
       mode: "payment",
-      success_url: `${process.env.SERVERURL}paymentSuccess?price=${price}&postId=${postId}&userId=${id}&status=success&token=${token}&address=${address}`,
-      cancel_url: `${process.env.SERVERURL}paymentFailed?&status=failed&token=${token}`,
+      success_url: `${process.env.SERVERURL}paymentSuccess2?price=${price}&postId=${postId}&userId=${id}&status=success&token=${token}&address=${address}`,
+      cancel_url: `${process.env.SERVERURL}paymentFailed2?&status=failed&token=${token}`,
     });
     console.log(session.url+'haiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
     res.send({ url: session.url });

@@ -33,8 +33,8 @@ userRoute.get('/paymentSuccess', usercontroller.handleSuccess);
 userRoute.get('/paymentFailed', usercontroller.handleFailed);
 
 userRoute.post("/payment", verifyTokenUser, usercontroller.onlinePayment);
-userRoute.get("/paymentSuccess", usercontroller.paymentStatus);
-userRoute.get("/paymentFailed", usercontroller.paymentStatus);
+userRoute.get("/paymentSuccess2", usercontroller.paymentStatus);
+userRoute.get("/paymentFailed2", usercontroller.paymentStatus);
 
 
 userRoute.post("/createChat",verifyTokenUser,chatcontroller.createChat)
