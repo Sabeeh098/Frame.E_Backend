@@ -186,6 +186,7 @@ const paymentStatus = async (req, res) => {
         const savedOrder = await newOrder.save();
 
         res.redirect(`${process.env.CLIENTURL}paymentSuccess`);
+        console.log("succces aaano")
       } else {
         res.redirect(`${process.env.CLIENTURL}paymentFailed`);
       }

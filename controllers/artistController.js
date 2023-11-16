@@ -1,6 +1,7 @@
 const { generateToken } = require("../middlewares/auth");
 const artistModel = require("../model/artistModel");
 const ArtistPost = require("../model/artistPost");
+const orderModel = require ("../model/orders.js")
 const bcrypt = require("bcrypt");
 
 let errMsg;
@@ -73,6 +74,7 @@ const getArtistDetails = async (req, res) => {
 
 const getArtistCategoryPosts = async (req, res) => {
   try {
+    console.log("first")
     const { id } = req.payload;
     const { category } = req.query;
 
@@ -175,6 +177,26 @@ const editArtistProfile = async (req, res) => {
     res.status(500).json({ errMsg: "Server Error" });
   }
 };
+const getOrders = async(req,res) => {
+  try {
+   
+  const artistId = req.payload.id;
+
+  const artistPosts = await ArtistPost.find({artist: artistId});
+
+  const postIds = artistPosts.map(post => post._id);
+
+  const orders = await orderModel.find({
+    'items.posts': {$in : postIds},
+}).populate('items.posts');
+
+res.status(200).json({orders})
+
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({errMsg:"Error in fetching data"})
+  }
+}
 
 module.exports = {
   artistRegister,
@@ -184,4 +206,5 @@ module.exports = {
   createArtistPost,
   deleteArtistPost,
   editArtistProfile,
+  getOrders,
 };

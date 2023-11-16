@@ -43,7 +43,9 @@ module.exports = {
   verifyTokenArtist: async (req, res, next) => {
     try {
       let token = req.headers.authorization;
+      console.log('heyyyyyyyyyyy')
       if (!token) {
+        console.log('token errror')
         return res.status(403).json({ errMsg: "Acces denied" });
       }
       if (token.startsWith("Bearer")) {
@@ -57,6 +59,7 @@ module.exports = {
        
         next();
       } else {
+        console.log('else errrorrrrr')
         return res.status(403).json({ errMsg: "Access denied" });
       }
     } catch (error) {
