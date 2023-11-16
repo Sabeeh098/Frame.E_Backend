@@ -134,7 +134,7 @@ const onlinePayment = async (req, res) => {
     const { token } = req.payload;
     const { price, id, postId, address } = req.body;
 
-    console.log(req.body+'payments')
+    console.log(price, id, postId, address +'payments')
 
     const user = await stripe.customers.create({
       metadata: {
