@@ -40,8 +40,8 @@ const createOrder = async (req, res) => {
         },
       ],
       mode: "payment",
-      // success_url: `${process.env.SERVERURL}paymentSuccess?price=${price}&productId=${productId}&userId=${id}&status=success&token=${token}&address=${address}&quantity=${quantity}`,
-      // cancel_url: `${process.env.SERVERURL}paymentFailed?status=failed&token=${token}`,
+      success_url: `${process.env.SERVERURL}paymentSuccess?price=${price}&productId=${productId}&userId=${id}&status=success&token=${token}&address=${address}&quantity=${quantity}`,
+      cancel_url: `${process.env.SERVERURL}paymentFailed?status=failed&token=${token}`,
     });
 
     await decrementProductQuantity(productId, quantity);
@@ -134,6 +134,8 @@ const onlinePayment = async (req, res) => {
     const { token } = req.payload;
     const { price, id, postId, address } = req.body;
 
+    console.log(req.body+'payments')
+
     const user = await stripe.customers.create({
       metadata: {
         price: price,
@@ -188,12 +190,12 @@ const paymentStatus = async (req, res) => {
         res.redirect(`${process.env.CLIENTURL}paymentSuccess`);
         console.log("succces aaano")
       } else {
-        // res.redirect(`${process.env.CLIENTURL}paymentFailed`);
+        res.redirect(`${process.env.CLIENTURL}paymentFailed`);
       }
     }
   } catch (error) {
     console.log(error);
-    // res.redirect(`${process.env.CLIENTURL}paymentFailed`);
+    res.redirect(`${process.env.CLIENTURL}paymentFailed`);
   }
 };
 
