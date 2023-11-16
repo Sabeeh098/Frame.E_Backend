@@ -62,7 +62,7 @@ const handleSuccess = async (req, res) => {
   const address = req.query.address;
   const quantity = req.query.quantity;
   const status = req.query.status
-// console.log(price,productId,userId,token,address,quantity,status,"handlesuccesas")
+
 
   if (token) {
     try {
@@ -158,7 +158,7 @@ const onlinePayment = async (req, res) => {
       success_url: `${process.env.SERVERURL}paymentSuccess2?price=${price}&postId=${postId}&userId=${id}&status=success&token=${token}&address=${address}`,
       cancel_url: `${process.env.SERVERURL}paymentFailed2?&status=failed&token=${token}`,
     });
-    console.log(session.url+'haiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
+  
     res.send({ url: session.url });
   } catch (error) {
     console.log(error);
@@ -173,7 +173,7 @@ const paymentStatus = async (req, res) => {
   const token = req.query.token;
   const address = req.query.address;
 
-  console.log(status+'statusssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss')
+
 
   try {
     if (token) {
@@ -190,19 +190,19 @@ const paymentStatus = async (req, res) => {
 
         const savedOrder = await newOrder.save();
 
-        console.log(savedOrder+'saveeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+     
 
         res.redirect(`${process.env.CLIENTURL}paymentSuccess`);
         console.log("succces aaano")
       } else {
         res.redirect(`${process.env.CLIENTURL}paymentFailed`);
-        console.log("tttttttttttttttttttttttttttttttttttttttttttttt")
+   
       }
     }
   } catch (error) {
     console.log(error);
     res.redirect(`${process.env.CLIENTURL}paymentFailed`);
-    console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
+   
   }
 };
 
@@ -211,7 +211,7 @@ const sendVerifyMail = async (email, userName, userId) => {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
-      secure: true, // Set this to true for Gmail
+      secure: true, 
       auth: {
         user: "frameexplore@gmail.com",
         pass: EMAIL_PASS,
