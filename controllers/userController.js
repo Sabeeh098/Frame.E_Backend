@@ -188,12 +188,12 @@ const paymentStatus = async (req, res) => {
         res.redirect(`${process.env.CLIENTURL}paymentSuccess`);
         console.log("succces aaano")
       } else {
-        res.redirect(`${process.env.CLIENTURL}paymentFailed`);
+        // res.redirect(`${process.env.CLIENTURL}paymentFailed`);
       }
     }
   } catch (error) {
     console.log(error);
-    res.redirect(`${process.env.CLIENTURL}paymentFailed`);
+    // res.redirect(`${process.env.CLIENTURL}paymentFailed`);
   }
 };
 
