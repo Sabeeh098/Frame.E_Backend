@@ -201,44 +201,49 @@ const sendVerifyMail = async (email, userName, userId) => {
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
-      secure: false,
-      requireTLS: true,
+      secure: true, // Set this to true for Gmail
       auth: {
         user: "frameexplore@gmail.com",
         pass: EMAIL_PASS,
       },
     });
+
     const mailOption = {
       from: "frameexplore@gmail.com",
       to: email,
       subject: "Email Verification",
-      html: `<p>Please click to verif your account <a href="${CLIENTURL}/emailVerify/${userId}">verify</a>.</p>`,
+      html: `<p>Please click to verify your account <a href="${CLIENTURL}/emailVerify/${userId}">verify</a>.</p>`,
     };
 
-    transporter.sendMail(mailOption, (error, info) => {
-      if (error) {
-        console.log(error);
-      } else {
-        console.log("The email has been sent.", info.response);
-      }
-    });
+    // Use async/await to handle the Promise returned by sendMail
+    const info = await transporter.sendMail(mailOption);
+
+    console.log("The email has been sent.", info.response);
   } catch (error) {
-    console.log(err.message);
+    console.error(error.message);
     console.log("Email cannot be sent");
   }
 };
 
-const verifyMail = async (req, res) => {
+
+const verifyMail = async (req, res, next) => {
   try {
     const { userId } = req.params;
-    await userModel.updateOne(
+    const result = await userModel.updateOne(
       { _id: userId },
       { $set: { isEmailVerified: true } }
     );
-    res.status(200).json({ message: "Email verified Sucessfuly verified " });
+
+    if (result.nModified === 1) {
+      res.status(200).json({ message: "Email successfully verified" });
+    } else {
+      res.status(404).json({ message: "User not found" });
+    }
   } catch (error) {
-    next(err.message);
-    console.log(error.message);
+    console.error(error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+    // Pass the error to the next middleware
+    next(error);
   }
 };
 
