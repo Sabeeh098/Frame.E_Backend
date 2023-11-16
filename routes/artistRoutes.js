@@ -35,7 +35,7 @@ artistRoutes.delete(
   artistcontroller.deleteArtistPost
 );
 artistRoutes.get("/order",verifyTokenArtist, artistcontroller.getOrders);
-
+artistRoutes.put('/approve/:orderId',verifyTokenArtist,artistcontroller.approveOrder)
 artistRoutes.post("/fetchChat", verifyTokenArtist, chatcontroller.createChat);
 artistRoutes.get("/fetchChats", verifyTokenArtist, chatcontroller.fetchChats);
 artistRoutes.post(

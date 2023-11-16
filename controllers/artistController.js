@@ -180,22 +180,45 @@ const editArtistProfile = async (req, res) => {
 };
 
 
+const approveOrder = async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+
+    const order = await orderModel.findById(orderId);
+
+    if (!order) {
+      return res.status(404).json({ errMsg: 'Order not found' });
+    }
+
+    // Update the order status
+    order.status = status;
+    await order.save();
+
+    res.status(200).json({ message: 'Order status updated successfully', order });
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    res.status(500).json({ errMsg: 'Internal Server Error' });
+  }
+};
+
+
 const getOrders = async (req, res) => {
   try {
-    console.log("Fetching orders for artist");
+    console.log('Fetching orders for artist');
 
     const orders = await orderModel.find().populate({
-      path: "items.posts",
-      model: "Posts",
-      select: "postName",
+      path: 'items.posts',
+      model: 'Posts',
+      select: 'postName',
     });
 
-    console.log(orders, "Orders");
+    console.log(orders, 'Orders');
 
     res.status(200).json({ orders });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ errMsg: "Error in fetching data" });
+    res.status(500).json({ errMsg: 'Error in fetching data' });
   }
 };
 
@@ -212,4 +235,5 @@ module.exports = {
   deleteArtistPost,
   editArtistProfile,
   getOrders,
+  approveOrder,
 };
