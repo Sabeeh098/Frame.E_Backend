@@ -62,7 +62,7 @@ const handleSuccess = async (req, res) => {
   const address = req.query.address;
   const quantity = req.query.quantity;
   const status = req.query.status
-console.log(price,productId,userId,token,address,quantity,status,"handlesuccesas")
+// console.log(price,productId,userId,token,address,quantity,status,"handlesuccesas")
 
   if (token) {
     try {
@@ -158,6 +158,7 @@ const onlinePayment = async (req, res) => {
       success_url: `${process.env.SERVERURL}paymentSuccess?price=${price}&postId=${postId}&userId=${id}&status=success&token=${token}&address=${address}`,
       cancel_url: `${process.env.SERVERURL}paymentFailed?&status=failed&token=${token}`,
     });
+    console.log(session.url+'haiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii')
     res.send({ url: session.url });
   } catch (error) {
     console.log(error);
