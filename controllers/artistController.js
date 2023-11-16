@@ -2,6 +2,7 @@ const { generateToken } = require("../middlewares/auth");
 const artistModel = require("../model/artistModel");
 const ArtistPost = require("../model/artistPost");
 const orderModel = require ("../model/orders.js")
+const stringId = '5ecbfa1c53b2b7b7c0d8b498';
 const bcrypt = require("bcrypt");
 
 let errMsg;
@@ -177,26 +178,30 @@ const editArtistProfile = async (req, res) => {
     res.status(500).json({ errMsg: "Server Error" });
   }
 };
-const getOrders = async(req,res) => {
+
+
+const getOrders = async (req, res) => {
   try {
-   
-  const artistId = req.payload.id;
+    console.log("Fetching orders for artist");
 
-  const artistPosts = await ArtistPost.find({artist: artistId});
+    const orders = await orderModel.find().populate({
+      path: "items.posts",
+      model: "Posts",
+      select: "postName",
+    });
 
-  const postIds = artistPosts.map(post => post._id);
+    console.log(orders, "Orders");
 
-  const orders = await orderModel.find({
-    'items.posts': {$in : postIds},
-}).populate('items.posts');
-
-res.status(200).json({orders})
-
-  } catch (error) {
-    console.log(error)
-    res.status(500).json({errMsg:"Error in fetching data"})
+    res.status(200).json({ orders });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ errMsg: "Error in fetching data" });
   }
-}
+};
+
+
+
+
 
 module.exports = {
   artistRegister,
