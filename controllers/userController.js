@@ -172,6 +172,8 @@ const paymentStatus = async (req, res) => {
   const token = req.query.token;
   const address = req.query.address;
 
+  console.log(status+'statusssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss')
+
   try {
     if (token) {
       if (status === "success") {
@@ -187,15 +189,19 @@ const paymentStatus = async (req, res) => {
 
         const savedOrder = await newOrder.save();
 
+        console.log(savedOrder+'saveeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee')
+
         res.redirect(`${process.env.CLIENTURL}paymentSuccess`);
         console.log("succces aaano")
       } else {
         res.redirect(`${process.env.CLIENTURL}paymentFailed`);
+        console.log("tttttttttttttttttttttttttttttttttttttttttttttt")
       }
     }
   } catch (error) {
     console.log(error);
     res.redirect(`${process.env.CLIENTURL}paymentFailed`);
+    console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn")
   }
 };
 
